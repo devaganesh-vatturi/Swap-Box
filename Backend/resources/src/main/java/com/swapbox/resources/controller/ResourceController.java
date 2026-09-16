@@ -124,7 +124,7 @@ public class ResourceController {
         );
     }
 
-    @PatchMapping("/{id}/status")
+    @PutMapping("/{id}/status")
     public ResponseEntity<ResourceResponse> updateResourceStatus(
             @PathVariable Long id,
             @Valid @RequestBody ResourceStatusUpdateRequest request) {

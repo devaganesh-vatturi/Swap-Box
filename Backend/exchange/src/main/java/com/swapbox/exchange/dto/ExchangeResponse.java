@@ -17,6 +17,7 @@ public class ExchangeResponse {
     private Long id;
     private Long requesterId;
     private Long ownerId;
+    private String title;
     private Long requestedResourceId;
     private Long offeredResourceId;
     private Integer creditOffered;

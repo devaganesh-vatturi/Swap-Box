@@ -18,6 +18,7 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
     List<Resource> findByOwnerIdAndType(
             Long ownerId,
             ResourceType type
+
     );
     List<Resource> findByDistrictAndStatus(
             String district,

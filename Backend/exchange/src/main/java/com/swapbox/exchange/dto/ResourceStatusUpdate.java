@@ -1,6 +1,6 @@
 package com.swapbox.exchange.dto;
 
-
+import com.swapbox.exchange.entity.ExchangeStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,11 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateExchangeRequest {
+public class ResourceStatusUpdate {
 
-    @NotNull(message = "Requested Resource ID is required")
-    private Long requestedResourceId;
-    private String title;
-    private Integer creditOffered;
-    private String note;
+    @NotNull(message = "Status is required")
+    private ResourceStatus status;
+
 }

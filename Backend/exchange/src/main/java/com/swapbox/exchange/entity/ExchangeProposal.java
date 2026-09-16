@@ -26,6 +26,9 @@ public class ExchangeProposal {
 
     @Column(nullable = false)
     private Long requestedResourceId;
+    
+    @Column(nullable = false)
+    private String title;
 
     private Long offeredResourceId; // Optional: Can exchange resource for credit
 

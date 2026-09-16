@@ -50,6 +50,7 @@ public class ExchangeService {
                 .requesterId(requesterId)
                 .ownerId(requestedResource.getOwnerId())
                 .requestedResourceId(request.getRequestedResourceId())
+                .title(request.getTitle())
                 .creditOffered(
                         request.getCreditOffered() != null
                                 ? request.getCreditOffered()
@@ -130,6 +131,13 @@ public class ExchangeService {
         }
 
         if (request.getStatus() == ExchangeStatus.ACCEPTED && proposal.getCreditOffered() != null && proposal.getCreditOffered() > 0) {
+
+            resourceServiceClient.changeStatus(
+                    proposal.getRequestedResourceId(),
+                 ResourceStatusUpdate.builder()
+                         .status(ResourceStatus.SWAPPED)
+                         .build()
+            );
             creditServiceClient.transferCredits(
                     proposal.getRequesterId(),
                     TransferCreditRequest.builder()
@@ -150,6 +158,7 @@ public class ExchangeService {
                 .id(proposal.getId())
                 .requesterId(proposal.getRequesterId())
                 .ownerId(proposal.getOwnerId())
+                .title(proposal.getTitle())
                 .requestedResourceId(proposal.getRequestedResourceId())
                 .offeredResourceId(proposal.getOfferedResourceId())
                 .creditOffered(proposal.getCreditOffered())

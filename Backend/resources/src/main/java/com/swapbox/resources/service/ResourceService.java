@@ -168,7 +168,9 @@ public class ResourceService {
             ResourceType type) {
 
         return resourceRepository
-                .findByOwnerIdAndType(ownerId, type)
+                .findByOwnerIdAndType(ownerId,
+                        type
+                        )
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

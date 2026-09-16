@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { exchangeService } from '../services/exchange.service';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmModal from '../components/ConfirmModal';
-
+import { userService } from '../services/user.service';
 const STATUS_FILTERS = [
   {
     value: 'PENDING',
@@ -33,7 +33,10 @@ const SentRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
-
+const [selectedRequest, setSelectedRequest] = useState(null);
+const [ownerContact, setOwnerContact] = useState(null);
+const [contactLoading, setContactLoading] = useState(false);
+const [contactError, setContactError] = useState('');
   const [message, setMessage] = useState({
     text: '',
     type: '',
@@ -43,7 +46,32 @@ const SentRequests = () => {
     isOpen: false,
     request: null,
   });
+const handleRequestClick = async (req) => {
+  try {
+    setSelectedRequest(req);
+    setOwnerContact(null);
+    setContactError('');
+    setContactLoading(true);
 
+    const contact = await userService.getUserContact(req.ownerId);
+
+    setOwnerContact(contact);
+  } catch (err) {
+    console.error('Failed to fetch owner contact:', err);
+
+    setContactError(
+      err.response?.data?.message ||
+      'Failed to load owner contact details.'
+    );
+  } finally {
+    setContactLoading(false);
+  }
+};
+const closeRequestModal = () => {
+  setSelectedRequest(null);
+  setOwnerContact(null);
+  setContactError('');
+};
   /*
    * Fetch sent requests based on status.
    *
@@ -281,6 +309,7 @@ const SentRequests = () => {
   };
 
   return (
+    <>
     <div className="max-w-7xl mx-auto px-4 py-8">
 
       {/* Header */}
@@ -356,6 +385,7 @@ const SentRequests = () => {
           {requests.map((req) => (
             <div
               key={req.id}
+               onClick={() => handleRequestClick(req)}
               className="bg-theme-surface border border-theme-border rounded-xl p-5 shadow-sm flex flex-col"
             >
 
@@ -386,27 +416,19 @@ const SentRequests = () => {
               {/* Request Details */}
               <div className="space-y-3 mb-5">
 
-                {/* Owner */}
+            
+                   {/* title */}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-theme-text-secondary">
-                    Owner ID
+                    Title
                   </span>
 
                   <span className="text-sm font-medium text-theme-text">
-                    #{req.ownerId}
+                    {req.title}
                   </span>
                 </div>
 
-                {/* Requested Resource */}
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-theme-text-secondary">
-                    Requested Resource ID
-                  </span>
-
-                  <span className="text-sm font-medium text-theme-text">
-                    #{req.requestedResourceId}
-                  </span>
-                </div>
+            
 
                 {/* Credits */}
                 <div className="flex justify-between items-center">
@@ -453,7 +475,7 @@ const SentRequests = () => {
                     type="button"
                     onClick={() => handleCancelClick(req)}
                     disabled={processingId === req.id}
-                    className="px-5 py-2 border border-theme-border text-theme-text hover:bg-theme-background rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                    className="px-5 py-2 cursor-pointer border border-theme-border text-theme-text hover:bg-theme-background rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                   >
                     Cancel Request
                   </button>
@@ -539,6 +561,201 @@ const SentRequests = () => {
       />
 
     </div>
+    {/* Request Details Modal */}
+{selectedRequest && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+    onClick={closeRequestModal}
+  >
+    <div
+      className="w-full max-w-lg bg-theme-surface rounded-2xl shadow-xl border border-theme-border"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Modal Header */}
+      <div className="flex items-center justify-between p-5 border-b border-theme-border">
+        <div>
+          <p className="text-xs text-theme-text-secondary mb-1">
+            Exchange Request
+          </p>
+
+          <h2 className="text-xl font-bold text-theme-text">
+            {selectedRequest.title}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          onClick={closeRequestModal}
+          className="w-9 h-9 rounded-full hover:bg-theme-background text-theme-text-secondary hover:text-theme-text transition-colors"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Modal Body */}
+      <div className="p-5">
+
+        {/* Request Information */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-theme-text mb-3">
+            Request Details
+          </h3>
+
+          <div className="space-y-3">
+
+            <div className="flex justify-between">
+              <span className="text-sm text-theme-text-secondary">
+                Request ID
+              </span>
+
+              <span className="text-sm font-medium text-theme-text">
+                #{selectedRequest.id}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-theme-text-secondary">
+                Title
+              </span>
+
+              <span className="text-sm font-medium text-theme-text">
+                {selectedRequest.title}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-theme-text-secondary">
+                Credits Offered
+              </span>
+
+              <span className="bg-theme-accent-light text-theme-accent font-bold text-xs px-2.5 py-1 rounded-full">
+                🪙 {selectedRequest.creditOffered ?? 0}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-theme-text-secondary">
+                Status
+              </span>
+
+              <span
+                className={`px-3 py-1 rounded-full border text-xs font-semibold ${getStatusStyles(
+                  selectedRequest.status
+                )}`}
+              >
+                {getStatusLabel(selectedRequest.status)}
+              </span>
+            </div>
+
+          </div>
+
+          {/* Note */}
+          {selectedRequest.note && (
+            <div className="mt-4 p-3 rounded-lg bg-theme-background border border-theme-border">
+              <p className="text-xs font-medium text-theme-text-secondary mb-1">
+                Note
+              </p>
+
+              <p className="text-sm text-theme-text leading-relaxed">
+                {selectedRequest.note}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Owner Contact */}
+        <div className="border-t border-theme-border pt-5">
+
+          <h3 className="text-sm font-semibold text-theme-text mb-3">
+            Owner Contact
+          </h3>
+
+          {contactLoading ? (
+            <div className="py-6 text-center">
+              <p className="text-sm text-theme-text-secondary">
+                Loading contact details...
+              </p>
+            </div>
+          ) : contactError ? (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-sm text-theme-danger">
+                {contactError}
+              </p>
+            </div>
+          ) : ownerContact ? (
+            <div className="space-y-3">
+
+              {/* Name */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-theme-background">
+                <div className="w-9 h-9 rounded-full bg-theme-primary text-white flex items-center justify-center">
+                  👤
+                </div>
+
+                <div>
+                  <p className="text-xs text-theme-text-secondary">
+                    Name
+                  </p>
+
+                  <p className="text-sm font-medium text-theme-text">
+                    {ownerContact.name}
+                  </p>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-theme-background">
+                <div className="w-9 h-9 rounded-full bg-theme-primary text-white flex items-center justify-center">
+                  ✉️
+                </div>
+
+                <div>
+                  <p className="text-xs text-theme-text-secondary">
+                    Email
+                  </p>
+
+                  <p className="text-sm font-medium text-theme-text break-all">
+                    {ownerContact.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Mobile */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-theme-background">
+                <div className="w-9 h-9 rounded-full bg-theme-primary text-white flex items-center justify-center">
+                  📱
+                </div>
+
+                <div>
+                  <p className="text-xs text-theme-text-secondary">
+                    Mobile Number
+                  </p>
+
+                  <p className="text-sm font-medium text-theme-text">
+                    {ownerContact.mobileNumber}
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          ) : null}
+
+        </div>
+      </div>
+
+      {/* Modal Footer */}
+      <div className="flex justify-end p-5 border-t border-theme-border">
+        <button
+          type="button"
+          onClick={closeRequestModal}
+          className="px-5 py-2 bg-theme-primary hover:bg-theme-primary-hover text-white rounded-lg text-sm font-medium transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+</>
   );
 };
 
