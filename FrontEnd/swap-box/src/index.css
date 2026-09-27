@@ -1,26 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* Application Backgrounds */
-  --bg-app: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-subnav: #f1f5f9;
+  --bg-app: #F9F8FC;
+  --bg-surface: #FFFFFF;
+  --bg-subnav: #F2F0F7;
 
-  /* Primary Accent & Actions */
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-active: #1d4ed8;
+  --color-primary: #5B3A8C;
+  --color-primary-hover: #4C2F78;
+  --color-primary-active: #3D255F;
 
-  /* Secondary Accent (Credits/Tokens) */
-  --color-accent: #d97706;
-  --color-accent-light: #fef3c7;
+  --color-accent: #D97706;
+  --color-accent-light: #FEF3C7;
 
-  /* Status Colors */
-  --color-success: #16a34a;
-  --color-danger: #dc2626;
+  --color-success: #16A34A;
+  --color-danger: #DC2626;
 
-  /* Borders & Dividers */
-  --color-border: #e2e8f0;
+  --color-border: #E3DFEA;
 }
 
 @theme {
