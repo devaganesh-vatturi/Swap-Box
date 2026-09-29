@@ -50,13 +50,8 @@ public class ExchangeService {
                 .requesterId(requesterId)
                 .ownerId(requestedResource.getOwnerId())
                 .requestedResourceId(request.getRequestedResourceId())
-                .title(request.getTitle())
-                .creditOffered(
-                        request.getCreditOffered() != null
-                                ? request.getCreditOffered()
-                                : requestedResource.getCreditValue()
-                )
-                .note(request.getNote())
+                .title(requestedResource.getTitle())
+                .creditOffered(requestedResource.getCreditValue())
                 .status(ExchangeStatus.PENDING)
                 .build();
 

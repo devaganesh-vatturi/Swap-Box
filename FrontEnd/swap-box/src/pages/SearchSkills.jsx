@@ -144,7 +144,7 @@ const SearchSkills = () => {
         type: '',
       });
 
-      await exchangeService.requestSwap(requestedResourceId,creditOffered);
+      await exchangeService.requestSwap(requestedResourceId);
 
       setMessage({
         text: 'Swap request sent successfully!',

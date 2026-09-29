@@ -15,7 +15,4 @@ public class CreateExchangeRequest {
 
     @NotNull(message = "Requested Resource ID is required")
     private Long requestedResourceId;
-    private String title;
-    private Integer creditOffered;
-    private String note;
 }

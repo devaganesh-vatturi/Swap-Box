@@ -23,6 +23,7 @@ public class ExchangeController {
             @RequestHeader("X-User-Id") Long requesterId,
             @Valid @RequestBody CreateExchangeRequest request) {
 
+        System.out.println(request);
         return new ResponseEntity<>(
                 exchangeService.createProposal(requesterId, request),
                 HttpStatus.CREATED
